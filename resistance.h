@@ -3,8 +3,6 @@
 
 #include <stdio.h>
 
-#include "breadboard.h"
-
 typedef struct {
     int start_cell_col;
     int end_cell_col;
@@ -12,6 +10,6 @@ typedef struct {
     float resistance_value;
 } Resistance;
 
-
-
+Resistance *create_resistance(int row, int col_start, int col_end, float value);
+    
 #endif
