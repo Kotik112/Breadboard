@@ -2,6 +2,7 @@
 #include "breadboard.h"
 #include "resistance.h"
 
+/* Creates and returns a breadboard pointer */
 Breadboard *create_breadboard(int width, int height) {
     Breadboard * ptr = malloc(sizeof(Breadboard));
     ptr->width = width;
@@ -9,6 +10,37 @@ Breadboard *create_breadboard(int width, int height) {
     ptr->resistances = malloc(sizeof(Resistance*)*((height*width)/2));
     ptr->resistance_count = 0;
     return ptr;
+}
+
+enum resistance_add_result breadboard_add_resistance(Breadboard *bb_pointer, Resistance* res_pointer) {
+    // check if its within the board min/max rows/cols
+    printf("Adding resistance row: %d, cols %d - %d\n", res_pointer->cell_row, res_pointer->start_cell_col, res_pointer->end_cell_col);
+    
+    if(res_pointer->cell_row < 0 || res_pointer->cell_row > bb_pointer->height-1) {
+        printf("Outside breadboard vertically\n");
+        return outside_breadboard;
+    }
+
+    if(res_pointer->start_cell_col < 0 || res_pointer->end_cell_col > bb_pointer->width-1) {
+        printf("Outside breadboard horizontally\n");
+        return outside_breadboard;
+    }
+
+    // check if it overlaps
+    for (int i = res_pointer->start_cell_col; i <= res_pointer->end_cell_col; i++) {
+        if (is_resistance_on_breadboard(bb_pointer, res_pointer->cell_row, i)) {
+            printf("Overlappin at row: %d, col: %d\n", res_pointer->cell_row, i);
+
+            return overlapping;
+        }
+    }
+
+    // put resistance pointer into breadboard pointer array
+    bb_pointer->resistances[bb_pointer->resistance_count] = res_pointer;
+    // bump up the number of resistenaces on breadboard by one
+    bb_pointer->resistance_count++;
+    // return success
+    return success;
 }
 
 bool is_resistance_on_breadboard(Breadboard *bb_pointer, int row, int col) {
@@ -49,35 +81,6 @@ void print_breadboard(Breadboard *bb_pointer) {
     }
 }
 
-enum resistance_add_result breadboard_add_resistance(Breadboard *bb_pointer, Resistance* res_pointer) {
-    // check if its within the board min/max rows/cols
-    printf("Adding resistance row: %d, cols %d - %d\n", res_pointer->cell_row, res_pointer->start_cell_col, res_pointer->end_cell_col);
-    
-    if(res_pointer->cell_row < 0 || res_pointer->cell_row > bb_pointer->height-1) {
-        printf("Outside breadboard vertically\n");
-        return outside_breadboard;
-    }
 
-    if(res_pointer->start_cell_col < 0 || res_pointer->end_cell_col > bb_pointer->width-1) {
-        printf("Outside breadboard horizontally\n");
-        return outside_breadboard;
-    }
-
-    // check if it overlaps
-    for (int i = res_pointer->start_cell_col; i <= res_pointer->end_cell_col; i++) {
-        if (is_resistance_on_breadboard(bb_pointer, res_pointer->cell_row, i)) {
-            printf("Overlappin at row: %d, col: %d\n", res_pointer->cell_row, i);
-
-            return overlapping;
-        }
-    }
-
-    // put resistance pointer into breadboard pointer array
-    bb_pointer->resistances[bb_pointer->resistance_count] = res_pointer;
-    // bump up the number of resistenaces on breadboard by one
-    bb_pointer->resistance_count++;
-    // return success
-    return success;
-}
 
 
