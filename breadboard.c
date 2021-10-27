@@ -17,12 +17,12 @@ enum resistance_add_result breadboard_add_resistance(Breadboard *bb_pointer, Res
     printf("Adding resistance row: %d, cols %d - %d\n", res_pointer->cell_row, res_pointer->start_cell_col, res_pointer->end_cell_col);
     
     if(res_pointer->cell_row < 0 || res_pointer->cell_row > bb_pointer->height-1) {
-        printf("Outside breadboard vertically\n");
+        printf("Outside breadboard vertically.\n");
         return outside_breadboard;
     }
 
     if(res_pointer->start_cell_col < 0 || res_pointer->end_cell_col > bb_pointer->width-1) {
-        printf("Outside breadboard horizontally\n");
+        printf("Outside breadboard horizontally.\n");
         return outside_breadboard;
     }
 

@@ -1,8 +1,5 @@
 /* TODO:
- 1!     Decide wether to use struct or 2D array for breadboard.
- 2!     Can argv[] casted to int? Or straight up declated integer in main argument?
- 3!     Define the breadboard at run-time OR build-time.
- 4!     Lös problemet med resistance pekare.
+
  */
 
 #include <stdio.h>
@@ -11,7 +8,6 @@
 
 #include "resistance.h"
 #include "breadboard.h"
-
 
 int get_int_input(char *text) {
     char input[10]; 
@@ -26,8 +22,8 @@ void print_main_menu(void) {
     printf("2.  Insert a resistor.\n");
     printf("3.  Delete a resistor.\n");
     printf("4.  Check if two points has complete circuit.\n\n");
-    //printf("5.  Check the total resistance between two points.\n");
-    //printf("6.  Save breadboard to file.\n");
+    printf("5.  Check the total resistance between two points.\n");
+    printf("6.  Exit.\n"); //Eventually save to file.
 }
 
 int main(void){
@@ -48,12 +44,18 @@ int main(void){
         {
         case 1:
             /* Show breadboard. */
-
+            print_breadboard(bb);
             break;
 
         case 2:
             /* Insert a resistor. */
+            int row = get_int_input("At what row would you like to place the resistor?:\n");
+            int col_start = get_int_input("Enter the column you would like the resistor start at:\n"); 
+            int col_end = get_int_input("Enter the column you would like the resistor end:\n");
+            float resistance_value = get_int_input("Enter the resistance value of the resistor:\n");
 
+            Resistance *new_resisor = create_resistance(row, col_start, col_end, resistance_value);
+            
             break;
 
         case 3:
