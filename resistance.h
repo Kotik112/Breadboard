@@ -10,6 +10,8 @@ typedef struct {
     float resistance_value;
 } Resistance;
 
-Resistance *create_resistance(int row, int col_start, int col_end, float value);
+/* Creates a resistance pointer and returns it. */
+Resistance* create_resistance(int row, int col_start, int col_end, float value);
+int delete_resistance(Resistance* resistor);
     
 #endif

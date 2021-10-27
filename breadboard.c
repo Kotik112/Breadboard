@@ -3,8 +3,8 @@
 #include "resistance.h"
 
 /* Creates and returns a breadboard pointer */
-Breadboard *create_breadboard(int width, int height) {
-    Breadboard * ptr = malloc(sizeof(Breadboard));
+Breadboard* create_breadboard(int width, int height) {
+    Breadboard* ptr = malloc(sizeof(Breadboard));
     ptr->width = width;
     ptr->height = height;
     ptr->resistances = malloc(sizeof(Resistance*)*((height*width)/2));
@@ -79,6 +79,7 @@ void print_breadboard(Breadboard *bb_pointer) {
         }
         printf("\n");
     }
+    printf("\n");
 }
 
 
