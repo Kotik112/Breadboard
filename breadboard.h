@@ -14,7 +14,8 @@ enum resistance_add_result {
 typedef struct {
     int height;
     int width;
-    Resistance** resistances;
+    Resistance** resistances;   //Define to an array? resistances[MAX_RES_NR]
+    //bool free_slot;
     int resistance_count;
 
 } Breadboard;

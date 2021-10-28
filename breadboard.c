@@ -8,6 +8,7 @@ Breadboard* create_breadboard(const int width, const int height) {
     ptr->width = width;
     ptr->height = height;
     ptr->resistances = malloc(sizeof(Resistance*)*((height*width)/2));
+    //ptr->free_slot = malloc(sizeof(bool)*((height*width)/2));
     ptr->resistance_count = 0;
     return ptr;
 }

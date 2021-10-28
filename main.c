@@ -1,5 +1,8 @@
 /* TODO:
-
+1!  Solve how to handle deletion.
+2!  Solve check circuit.
+3!  
+4!  Use free() to clean up all mem alloc after yourself.
  */
 
 #include <stdio.h>
@@ -52,10 +55,13 @@ void delete_resistor(Breadboard* bb) {
 
 bool check_circuit(Breadboard* bb_pointer, const int check_row, const int check_col) {
     for(int i = 0; i < bb_pointer->resistance_count; i++) {
-        /* Check if chosen coords matches */
+        /* Check if chosen row has a resistor(1) end-point */
         if(bb_pointer->resistances[i]->cell_row == check_row) {
+            /* Checks is the chosen column has a resistor(1) end-point */
             if(bb_pointer->resistances[i]->start_cell_col == check_col && bb_pointer->resistances[i]->end_cell_col == check_col) {
+                /* If found, loop over all resostors again and check for any other resistors are at the same column */
                 for (int j = 0; j < bb_pointer->resistance_count; j++) {
+                    /* Checks the other end of resistor(1) and checks if that end has any other resistors at that column. */
                     if (bb_pointer->resistances[i]->end_cell_col == bb_pointer->resistances[j]->start_cell_col || 
                                 bb_pointer->resistances[i]->end_cell_col == bb_pointer->resistances[j]->end_cell_col) {
                         //int row = bb_pointer->resistances[j]->end_cell_col;
@@ -94,25 +100,24 @@ int main(void){
         switch (user_choice)
         {
         case 1:
-            /* Show breadboard. */
-            print_breadboard(bb);
-            
+            /* "Show breadboard" menu. */
+            print_breadboard(bb); 
             print_resistors(bb);
             break;
 
         case 2:
-            /* Insert a resistor. */
+            /* "Insert a resistor" menu. */
             new_resistor(bb);
             break;
 
         case 3:
-            /* Delete a resistor. */
+            /* "Delete a resistor" menu. */
             delete_resistor(bb);
             break;
 
         case 4:
             /* Check if two points has complete circuit. */
-
+            printf("WIP: Check Circuit.\n");
             break;
 
          case 5:
@@ -121,6 +126,7 @@ int main(void){
 
         case 6:
             printf("EXIT. (WIP: Save to file).\n");
+            //clean_up();  free() the malloc
             loop_status = false;
             break;
         
