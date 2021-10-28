@@ -3,7 +3,7 @@
 #include "resistance.h"
 
 /* Creates and returns a breadboard pointer */
-Breadboard* create_breadboard(int width, int height) {
+Breadboard* create_breadboard(const int width, const int height) {
     Breadboard* ptr = malloc(sizeof(Breadboard));
     ptr->width = width;
     ptr->height = height;
@@ -71,16 +71,18 @@ void print_breadboard(Breadboard *bb_pointer) {
     for (int r = 0; r < bb_pointer->height; r++) {
         for (int c = 0; c < bb_pointer->width; c++) {
             if (is_resistance_on_breadboard(bb_pointer, r, c)) {
-                printf("X");
+                printf(" X ");
             }
             else {
-                printf("O");
+                printf(" O ");
             }
         }
         printf("\n");
     }
     printf("\n");
 }
+
+
 
 
 

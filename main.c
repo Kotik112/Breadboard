@@ -9,7 +9,7 @@
 #include "resistance.h"
 #include "breadboard.h"
 
-int get_int_input(char *text) {
+int get_int_input(const char *text) {
     char input[10]; 
    
     printf(text);
@@ -29,6 +29,7 @@ void new_resistor(Breadboard* bb) {
 }
 
 void print_resistors(Breadboard* bb) {
+    printf("*****   RESISTORS   *****\n");
     for (int i = 0; i < bb->resistance_count; i++) {
         printf("%d: Row: %d, Start column: %d, End column: %d, Resistance value: %.2f.\n",
         i+1, bb->resistances[i]->cell_row, bb->resistances[i]->start_cell_col,
@@ -47,6 +48,23 @@ void delete_resistor(Breadboard* bb) {
     delete_resistance(bb->resistances[resistor_choice]);
     /* Note: Need to double check this section! */
     bb->resistance_count--;
+}
+
+bool check_circuit(Breadboard* bb_pointer, const int check_row, const int check_col) {
+    for(int i = 0; i < bb_pointer->resistance_count; i++) {
+        /* Check if chosen coords matches */
+        if(bb_pointer->resistances[i]->cell_row == check_row) {
+            if(bb_pointer->resistances[i]->start_cell_col == check_col && bb_pointer->resistances[i]->end_cell_col == check_col) {
+                for (int j = 0; j < bb_pointer->resistance_count; j++) {
+                    if (bb_pointer->resistances[i]->end_cell_col == bb_pointer->resistances[j]->start_cell_col || 
+                                bb_pointer->resistances[i]->end_cell_col == bb_pointer->resistances[j]->end_cell_col) {
+                        //int row = bb_pointer->resistances[j]->end_cell_col;
+                        //check_circuit(bb_pointer, bb_pointer->resistances[i]->cell_row, bb_pointer->resistances[j]->end_cell_col);
+                    }
+                }
+            }
+        }
+    }
 }
 
 void print_main_menu(void) {
@@ -78,7 +96,7 @@ int main(void){
         case 1:
             /* Show breadboard. */
             print_breadboard(bb);
-            printf("*****   RESISTORS   *****\n");
+            
             print_resistors(bb);
             break;
 
