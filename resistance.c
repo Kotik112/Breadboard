@@ -13,5 +13,5 @@ Resistance *create_resistance(int row, int col_start, int col_end, float value) 
 }
 
 int delete_resistance(Resistance* resistor) {
-    free(resistor);
+    //free(resistor);
 }
