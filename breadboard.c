@@ -5,9 +5,13 @@
 /* Creates and returns a breadboard pointer */
 Breadboard* create_breadboard(const int width, const int height) {
     Breadboard* ptr = malloc(sizeof(Breadboard));
+    if(ptr == NULL) {
+        printf("Failed to allocate memory for the breadboard. (create_resistance)\n");
+        return -1;
     ptr->width = width;
     ptr->height = height;
-    ptr->resistances = malloc(sizeof(Resistance*)*((height*width)/2));
+    ptr->resistances = malloc(sizeof(Resistance*) * ((height * width) / 2));
+    /*  */
     //ptr->free_slot = malloc(sizeof(bool)*((height*width)/2));
     ptr->resistance_count = 0;
     return ptr;
