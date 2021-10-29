@@ -24,7 +24,10 @@ void new_resistor(Breadboard* bb) {
     int row = get_int_input("At what row would you like to place the resistor?:\n");
     int col_start = get_int_input("Enter the column you would like the resistor start at:\n"); 
     int col_end = get_int_input("Enter the column you would like the resistor end:\n");
-    float resistance_value = get_int_input("Enter the resistance value of the resistor:\n");
+    float resistance_value; 
+    printf("Enter the resistance value of the resistor:\n");
+    scanf("%f", &resistance_value);
+    getchar(); //removes new line from stdin.
 
     Resistance* new_resisor = create_resistance(row, col_start, col_end, resistance_value);
 
@@ -48,7 +51,7 @@ void delete_resistor(Breadboard* bb) {
     /* To adjust the number to its corresponding index. */
     resistor_choice--;
 
-    delete_resistance(bb->resistances[resistor_choice]);
+    breadboard_delete_resistor(bb, resistor_choice);
     /* Note: Need to double check this section! */
     bb->resistance_count--;
 }
@@ -135,21 +138,6 @@ int main(void){
             break;
         }
     }
-    
-
-
-//      FOR TESTING PURPOSES
-/*     Resistance* r1 = create_resistance(2, 1, 4, 0.5);
-    Resistance* r2 = create_resistance(2, 2, 5, 0.3);
-    Resistance* r3 = create_resistance(3, 0, 3, 0.7);
-
-    breadboard_add_resistance(bb, r1);
-    breadboard_add_resistance(bb, r2);
-    breadboard_add_resistance(bb, r3); */
-
-    
-
-
     return 0;
 }
 

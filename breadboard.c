@@ -11,13 +11,13 @@ Breadboard* create_breadboard(const int width, const int height) {
     ptr->width = width;
     ptr->height = height;
     ptr->resistances = malloc(sizeof(Resistance*) * ((height * width) / 2));
-    /*  */
-    //ptr->free_slot = malloc(sizeof(bool)*((height*width)/2));
+    /* Check for NULL. */
+    //ptr->free_slot = malloc(sizeof(bool) * ((height * width) / 2));
     ptr->resistance_count = 0;
     return ptr;
 }
 
-enum resistance_add_result breadboard_add_resistance(Breadboard *bb_pointer, Resistance* res_pointer) {
+enum resistance_add_result breadboard_add_resistance(Breadboard* bb_pointer, Resistance* res_pointer) {
     // check if its within the board min/max rows/cols
     printf("Adding resistance row: %d, cols %d - %d\n", res_pointer->cell_row, res_pointer->start_cell_col, res_pointer->end_cell_col);
     
@@ -85,6 +85,21 @@ void print_breadboard(Breadboard *bb_pointer) {
         printf("\n");
     }
     printf("\n");
+}
+
+void breadboard_sort_resistors(Breadboard* bb, int index) {
+    for (int i = index; i < bb->resistance_count; i++) {
+        memcopy(&bb->resistances[i], bb->resistances[i+1], sizeof(Breadboard));
+    }
+}
+
+int breadboard_delete_resistor(Breadboard *bb, int index) {
+    bb->resistances[index]->start_cell_col = NULL;
+    bb->resistances[index]->end_cell_col = NULL; 
+    bb->resistances[index]->cell_row = NULL;
+    bb->resistances[index]->resistance_value = 0.00;
+    breadboard_sort_resistors(bb, index);
+    bb->resistance_count--;
 }
 
 
