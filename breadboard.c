@@ -11,7 +11,10 @@ Breadboard* create_breadboard(const int width, const int height) {
     ptr->width = width;
     ptr->height = height;
     ptr->resistances = malloc(sizeof(Resistance*) * ((height * width) / 2));
-    /* Check for NULL. */
+    if (ptr->resistances == NULL) {
+        printf("Failed to allocate memory for the resistances. (create_resistance)\n");
+        return -1
+    }
     //ptr->free_slot = malloc(sizeof(bool) * ((height * width) / 2));
     ptr->resistance_count = 0;
     return ptr;
@@ -93,7 +96,7 @@ void breadboard_sort_resistors(Breadboard* bb, int index) {
     }
 }
 
-int breadboard_delete_resistor(Breadboard *bb, int index) {
+void breadboard_delete_resistor(Breadboard *bb, int index) {
     bb->resistances[index]->start_cell_col = NULL;
     bb->resistances[index]->end_cell_col = NULL; 
     bb->resistances[index]->cell_row = NULL;

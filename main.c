@@ -47,13 +47,11 @@ void print_resistors(Breadboard* bb) {
 void delete_resistor(Breadboard* bb) {
     print_resistors(bb);
     int resistor_choice = get_int_input("Enter the resistor you want to delete. (Number): \n");
-    
     /* To adjust the number to its corresponding index. */
     resistor_choice--;
 
     breadboard_delete_resistor(bb, resistor_choice);
-    /* Note: Need to double check this section! */
-    bb->resistance_count--;
+    
 }
 
 bool check_circuit(Breadboard* bb_pointer, const int check_row, const int check_col) {
