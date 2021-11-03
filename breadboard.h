@@ -28,5 +28,9 @@ enum resistance_add_result breadboard_add_resistance(Breadboard *bb_pointer, Res
 bool is_resistance_on_breadboard(Breadboard *bb_pointer, int row, int col);
 /* Prints the breadboard. */
 void print_breadboard(Breadboard* bb_pointer);
+/*  */
+void breadboard_delete_resistor(Breadboard* bb, int index);
+/*  */
+void breadboard_sort_resistors(Breadboard* bb, int index);
 
 #endif

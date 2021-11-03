@@ -54,15 +54,15 @@ void delete_resistor(Breadboard* bb) {
     
 }
 
-bool check_circuit(Breadboard* bb_pointer, const int check_row, const int check_col) {
+/* bool check_circuit(Breadboard* bb_pointer, const int check_row, const int check_col) {
     for(int i = 0; i < bb_pointer->resistance_count; i++) {
-        /* Check if chosen row has a resistor(1) end-point */
+        // Check if chosen row has a resistor(1) end-point 
         if(bb_pointer->resistances[i]->cell_row == check_row) {
-            /* Checks is the chosen column has a resistor(1) end-point */
+            // Checks is the chosen column has a resistor(1) end-point
             if(bb_pointer->resistances[i]->start_cell_col == check_col && bb_pointer->resistances[i]->end_cell_col == check_col) {
-                /* If found, loop over all resostors again and check for any other resistors are at the same column */
+                // If found, loop over all resostors again and check for any other resistors are at the same column
                 for (int j = 0; j < bb_pointer->resistance_count; j++) {
-                    /* Checks the other end of resistor(1) and checks if that end has any other resistors at that column. */
+                    // Checks the other end of resistor(1) and checks if that end has any other resistors at that column.
                     if (bb_pointer->resistances[i]->end_cell_col == bb_pointer->resistances[j]->start_cell_col || 
                                 bb_pointer->resistances[i]->end_cell_col == bb_pointer->resistances[j]->end_cell_col) {
                         //int row = bb_pointer->resistances[j]->end_cell_col;
@@ -70,6 +70,16 @@ bool check_circuit(Breadboard* bb_pointer, const int check_row, const int check_
                     }
                 }
             }
+        }
+    }
+} */
+
+bool check_circuit(Breadboard* bb_pointer, const int start_row, const int start_col, 
+                                                    const int end_col, const int end_row) {
+    for (int i = 0; i < bb_pointer->resistance_count; i++) {
+        // Check if the start_col matches either ends of any resistors
+        if (bb_pointer->resistances[i]->start_cell_col == start_col || bb_pointer->resistances[i]->end_cell_col == start_col) {
+            
         }
     }
 }

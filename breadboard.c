@@ -13,7 +13,7 @@ Breadboard* create_breadboard(const int width, const int height) {
     ptr->resistances = malloc(sizeof(Resistance*) * ((height * width) / 2));
     if (ptr->resistances == NULL) {
         printf("Failed to allocate memory for the resistances. (create_resistance)\n");
-        return -1
+        return -1;
     }
     //ptr->free_slot = malloc(sizeof(bool) * ((height * width) / 2));
     ptr->resistance_count = 0;
@@ -22,14 +22,15 @@ Breadboard* create_breadboard(const int width, const int height) {
 
 enum resistance_add_result breadboard_add_resistance(Breadboard* bb_pointer, Resistance* res_pointer) {
     // check if its within the board min/max rows/cols
-    printf("Adding resistance row: %d, cols %d - %d\n", res_pointer->cell_row, res_pointer->start_cell_col, res_pointer->end_cell_col);
+    printf("Adding resistance row: %d, cols %d - %d\n", res_pointer->cell_row, 
+                                        res_pointer->start_cell_col, res_pointer->end_cell_col);
     
-    if(res_pointer->cell_row < 0 || res_pointer->cell_row > bb_pointer->height-1) {
+    if(res_pointer->cell_row < 0 || res_pointer->cell_row > bb_pointer->height - 1) {
         printf("Outside breadboard vertically.\n");
         return outside_breadboard;
     }
 
-    if(res_pointer->start_cell_col < 0 || res_pointer->end_cell_col > bb_pointer->width-1) {
+    if(res_pointer->start_cell_col < 0 || res_pointer->end_cell_col > bb_pointer->width - 1) {
         printf("Outside breadboard horizontally.\n");
         return outside_breadboard;
     }
@@ -38,7 +39,6 @@ enum resistance_add_result breadboard_add_resistance(Breadboard* bb_pointer, Res
     for (int i = res_pointer->start_cell_col; i <= res_pointer->end_cell_col; i++) {
         if (is_resistance_on_breadboard(bb_pointer, res_pointer->cell_row, i)) {
             printf("Overlappin at row: %d, col: %d\n", res_pointer->cell_row, i);
-
             return overlapping;
         }
     }
@@ -91,7 +91,7 @@ void print_breadboard(Breadboard *bb_pointer) {
 }
 
 void breadboard_sort_resistors(Breadboard* bb, int index) {
-    for (int i = index; i < bb->resistance_count; i++) {
+    for (int i = index; i < bb->resistance_count-1; i++) {
         memcopy(&bb->resistances[i], bb->resistances[i+1], sizeof(Breadboard));
     }
 }
