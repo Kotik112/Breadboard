@@ -15,6 +15,7 @@ Du får själv välja hur du skriver ut kopplingsdäcket, men det skall vara en 
 Koden skall komma med en instruktion för hur man kompilerar och kör den. Det kan vara en Makefile, ett shell-skript eller bara en textfil med instruktioner.
 Dataflödena i programmet skall vara genomtänkta. Onödig minneskopiering skall undvikas.
 - Minnet skall hanteras korrekt, minne man har fått av malloc skall frias med free.
+
   2.2 Krav på lösningen
 Användaren skall kunna placera ut resistorer på däcket horisontellt. Man skall inte kunna sätta mer än en komponent i ett hål.
 Resistorer får heller inte överlappa.
