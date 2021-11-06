@@ -33,4 +33,6 @@ void breadboard_delete_resistor(Breadboard* bb, int index);
 /*  */
 void breadboard_sort_resistors(Breadboard* bb, int index);
 
+int check_resistor_on_col(Breadboard* bb_pointer, int* current_column, int* current_row);
+
 #endif

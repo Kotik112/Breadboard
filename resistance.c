@@ -6,7 +6,7 @@ Resistance* create_resistance(int row, int col_start, int col_end, float value) 
     Resistance * res_ptr = malloc(sizeof(Resistance));
     if(res_ptr == NULL) {
         printf("Failed to allocate memory for the resistor. (create_resistance)\n");
-        return -1;
+        return NULL;
     }
     res_ptr->cell_row = row;
     res_ptr->start_cell_col = col_start;
@@ -16,6 +16,16 @@ Resistance* create_resistance(int row, int col_start, int col_end, float value) 
     return res_ptr;
 }
 
-int delete_resistance(Resistance* resistor) {
-    //free(resistor);
+int travel_resistor(Resistance* resistor, const int start_col) {
+    if (start_col == resistor->start_cell_col) {
+        return resistor->end_cell_col;
+    }
+    else if (start_col == resistor->end_cell_col) {
+        return resistor->start_cell_col;
+    }
+    else {
+        return -1;
+    }
+    
 }
+

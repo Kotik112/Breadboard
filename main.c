@@ -20,6 +20,7 @@ int get_int_input(const char *text) {
     return atoi(input);
 }
 
+
 void new_resistor(Breadboard* bb) {
     int row = get_int_input("At what row would you like to place the resistor?:\n");
     int col_start = get_int_input("Enter the column you would like the resistor start at:\n"); 
@@ -30,6 +31,9 @@ void new_resistor(Breadboard* bb) {
     getchar(); //removes new line from stdin.
 
     Resistance* new_resisor = create_resistance(row, col_start, col_end, resistance_value);
+    if (new_resisor == NULL) {
+        //Vad gör jag här?
+    }
 
     breadboard_add_resistance(bb, new_resisor);
 }
@@ -54,34 +58,87 @@ void delete_resistor(Breadboard* bb) {
     
 }
 
-/* bool check_circuit(Breadboard* bb_pointer, const int check_row, const int check_col) {
-    for(int i = 0; i < bb_pointer->resistance_count; i++) {
-        // Check if chosen row has a resistor(1) end-point 
-        if(bb_pointer->resistances[i]->cell_row == check_row) {
-            // Checks is the chosen column has a resistor(1) end-point
-            if(bb_pointer->resistances[i]->start_cell_col == check_col && bb_pointer->resistances[i]->end_cell_col == check_col) {
-                // If found, loop over all resostors again and check for any other resistors are at the same column
-                for (int j = 0; j < bb_pointer->resistance_count; j++) {
-                    // Checks the other end of resistor(1) and checks if that end has any other resistors at that column.
-                    if (bb_pointer->resistances[i]->end_cell_col == bb_pointer->resistances[j]->start_cell_col || 
-                                bb_pointer->resistances[i]->end_cell_col == bb_pointer->resistances[j]->end_cell_col) {
-                        //int row = bb_pointer->resistances[j]->end_cell_col;
-                        //check_circuit(bb_pointer, bb_pointer->resistances[i]->cell_row, bb_pointer->resistances[j]->end_cell_col);
-                    }
-                }
-            }
-        }
-    }
-} */
 
-bool check_circuit(Breadboard* bb_pointer, const int start_row, const int start_col, 
-                                                    const int end_col, const int end_row) {
-    for (int i = 0; i < bb_pointer->resistance_count; i++) {
-        // Check if the start_col matches either ends of any resistors
-        if (bb_pointer->resistances[i]->start_cell_col == start_col || bb_pointer->resistances[i]->end_cell_col == start_col) {
-            
+bool check_circuit(Breadboard* bb_pointer) 
+{
+    int start_col = get_int_input("Enter the start colum: \n");
+    int start_row = get_int_input("Enter the start row: \n");
+    int end_col = get_int_input("Enter the end colum: \n");
+    int* current_row = &start_row;
+    int* current_column = &start_col;
+
+    int whileloop_var = 1;
+    while (whileloop_var)
+    {
+        int result = check_resistor_on_col(bb_pointer, current_column, current_row);
+        if (result == -1) {
+            printf("Circuit not complete. \n");
+            whileloop_var = 0;
+            return false;
         }
+        if (*current_column == end_col) {
+            whileloop_var = 0;
+            return true;
+        }   
     }
+    return false;   
+}
+
+bool save_breadboard(char* filename[25], Breadboard* bb_pointer) {
+    errno_t error_code;
+    FILE* fp_board;
+    
+    /* Opens board.bin to save the board struct on. */
+    error_code = fopen_s(&fp_board, filename, "wb");
+    if (error_code != 0) {
+        printf("Error! Failed to open bb.bat in wb mode!");
+    }
+    size_t elements_written = fwrite(bb_pointer, sizeof(Breadboard), 1, fp_board);
+    if (elements_written == 0) {
+        return false;
+    }
+    fclose(fp_board);
+    return true;
+}
+
+bool save_resistances(char* filename[25], Breadboard* bb_pointer) {
+    errno_t error_code;
+    FILE* fp_resistances;
+    /* Opens resistances.bin to save the array of resistance pointers on. */
+    error_code = fopen_s(&fp_resistances, filename, "wb");
+    if (error_code != 0) {
+        printf("Error! Failed to open board.bat in wb mode!");
+    }
+
+    size_t elements_written = fwrite(bb_pointer->resistances, sizeof(Resistance), bb_pointer->resistance_count, fp_resistances);
+    if (elements_written == 0) {
+        return false;
+    }
+    fclose(fp_resistances);
+
+    return true;
+}
+
+bool save_to_file(Breadboard* bb_pointer) {
+    bool status_check;
+    status_check = save_resistances("resistances.bin", bb_pointer);
+    if (status_check == false) {
+        printf("Save Resistances failed!\n");
+        return false;
+    }
+    printf("Saved resistances file!\n");
+
+    status_check = save_breadboard("bb.bin", bb_pointer);
+    if (status_check == false) {
+        printf("Save breadboard failed!\n");
+        return false;
+    }
+    return true;
+}
+
+void clean_up(Breadboard* bb_pointer) {
+    free(bb_pointer->resistances);
+    free(bb_pointer);
 }
 
 void print_main_menu(void) {
@@ -128,7 +185,7 @@ int main(void){
 
         case 4:
             /* Check if two points has complete circuit. */
-            printf("WIP: Check Circuit.\n");
+            check_circuit(bb);
             break;
 
          case 5:
@@ -137,8 +194,9 @@ int main(void){
 
         case 6:
             printf("EXIT. (WIP: Save to file).\n");
-            //clean_up();  free() the malloc
+            save_to_file(bb);
             loop_status = false;
+            clean_up(bb);
             break;
         
         default:

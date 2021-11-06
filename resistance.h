@@ -12,6 +12,6 @@ typedef struct {
 
 /* Creates a resistance pointer and returns it. */
 Resistance* create_resistance(int row, int col_start, int col_end, float value);
-int delete_resistance(Resistance* resistor);
+int travel_resistor(Resistance* resistor, const int start_col);
     
 #endif

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "breadboard.h"
 #include "resistance.h"
 
@@ -7,13 +8,14 @@ Breadboard* create_breadboard(const int width, const int height) {
     Breadboard* ptr = malloc(sizeof(Breadboard));
     if(ptr == NULL) {
         printf("Failed to allocate memory for the breadboard. (create_resistance)\n");
-        return -1;
+        return NULL;
+    }
     ptr->width = width;
     ptr->height = height;
     ptr->resistances = malloc(sizeof(Resistance*) * ((height * width) / 2));
     if (ptr->resistances == NULL) {
         printf("Failed to allocate memory for the resistances. (create_resistance)\n");
-        return -1;
+        return NULL;
     }
     //ptr->free_slot = malloc(sizeof(bool) * ((height * width) / 2));
     ptr->resistance_count = 0;
@@ -92,17 +94,31 @@ void print_breadboard(Breadboard *bb_pointer) {
 
 void breadboard_sort_resistors(Breadboard* bb, int index) {
     for (int i = index; i < bb->resistance_count-1; i++) {
-        memcopy(&bb->resistances[i], bb->resistances[i+1], sizeof(Breadboard));
+        memcpy(bb->resistances[i], bb->resistances[i+1], sizeof(Breadboard));
     }
 }
 
 void breadboard_delete_resistor(Breadboard *bb, int index) {
-    bb->resistances[index]->start_cell_col = NULL;
-    bb->resistances[index]->end_cell_col = NULL; 
-    bb->resistances[index]->cell_row = NULL;
+    bb->resistances[index]->start_cell_col = -1;
+    bb->resistances[index]->end_cell_col = -1; 
+    bb->resistances[index]->cell_row = -1;
     bb->resistances[index]->resistance_value = 0.00;
     breadboard_sort_resistors(bb, index);
     bb->resistance_count--;
+}
+
+/* Checks for any resistors on current column */
+int check_resistor_on_col(Breadboard* bb_pointer, int* current_column, int* current_row) {
+    for(int i = 0; i < bb_pointer->resistance_count; i++) {
+        if (bb_pointer->resistances[i]->cell_row == i) {
+            continue;
+        }
+        if (bb_pointer->resistances[i]->start_cell_col == *current_column || bb_pointer->resistances[i]->end_cell_col == *current_column) {
+            *current_column = travel_resistor(bb_pointer->resistances[i], *current_column);
+            *current_row = bb_pointer->resistances[i]->cell_row;
+        }
+    }
+    return -1;
 }
 
 
