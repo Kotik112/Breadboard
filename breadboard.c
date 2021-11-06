@@ -94,7 +94,7 @@ void print_breadboard(Breadboard *bb_pointer) {
 
 void breadboard_sort_resistors(Breadboard* bb, int index) {
     for (int i = index; i < bb->resistance_count-1; i++) {
-        memcpy(bb->resistances[i], bb->resistances[i+1], sizeof(Breadboard));
+        memcpy(bb->resistances[i], bb->resistances[i+1], sizeof(Resistance));
     }
 }
 

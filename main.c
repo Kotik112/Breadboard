@@ -28,6 +28,7 @@ void new_resistor(Breadboard* bb) {
     float resistance_value; 
     printf("Enter the resistance value of the resistor:\n");
     scanf("%f", &resistance_value);
+    //check input
     getchar(); //removes new line from stdin.
 
     Resistance* new_resisor = create_resistance(row, col_start, col_end, resistance_value);
@@ -42,8 +43,12 @@ void print_resistors(Breadboard* bb) {
     printf("*****   RESISTORS   *****\n");
     for (int i = 0; i < bb->resistance_count; i++) {
         printf("%d: Row: %d, Start column: %d, End column: %d, Resistance value: %.2f.\n",
-        i+1, bb->resistances[i]->cell_row, bb->resistances[i]->start_cell_col,
-        bb->resistances[i]->end_cell_col, bb->resistances[i]->resistance_value);
+        i+1, 
+        bb->resistances[i]->cell_row, 
+        bb->resistances[i]->start_cell_col,
+        bb->resistances[i]->end_cell_col, 
+        bb->resistances[i]->resistance_value
+        );
     }
     printf("\n");
 } 
