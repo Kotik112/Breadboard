@@ -8,9 +8,12 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <float.h>
 
 #include "resistance.h"
 #include "breadboard.h"
+
+#define MAX_DEPTH 10
 
 int get_int_input(const char *text) {
     char input[10]; 
@@ -64,29 +67,52 @@ void delete_resistor(Breadboard* bb) {
 }
 
 
-bool check_circuit(Breadboard* bb_pointer) 
+
+float resistance_between_points_rec(Breadboard* bb_pointer, const int x1, const int y1, const int x2, const int y2, int depth) {
+    if (x1 == x2) {
+        return 0;
+    }
+    
+    float min_resistance = FLT_MAX;
+    if (depth >= MAX_DEPTH) {
+        return min_resistance;
+    }
+
+    for (int i = 0; i < bb_pointer->height; i++) {
+        Resistance* res = get_resistance_on_breadboard(bb_pointer, i, x1);
+        if (res != NULL) {
+            float followed_resistance = res->resistance_value;
+            int dest_col = travel_resistor(res, x1);
+            followed_resistance += resistance_between_points_rec(bb_pointer, dest_col, i, x2, y2, ++depth);
+            if (followed_resistance < min_resistance) {
+                min_resistance = followed_resistance;
+            }
+        }
+    }
+    return min_resistance;
+}
+
+
+float resistance_between_points(Breadboard* bb_pointer, const int x1, const int y1, const int x2, const int y2) {
+    return resistance_between_points_rec(bb_pointer, x1, y1, x2, y2, 0);
+}
+
+void check_circuit(Breadboard* bb_pointer) 
 {
     int start_col = get_int_input("Enter the start colum: \n");
     int start_row = get_int_input("Enter the start row: \n");
     int end_col = get_int_input("Enter the end colum: \n");
+    int end_row = get_int_input("Enter the end row: \n");
     int* current_row = &start_row;
     int* current_column = &start_col;
 
-    int whileloop_var = 1;
-    while (whileloop_var)
-    {
-        int result = check_resistor_on_col(bb_pointer, current_column, current_row);
-        if (result == -1) {
-            printf("Circuit not complete. \n");
-            whileloop_var = 0;
-            return false;
-        }
-        if (*current_column == end_col) {
-            whileloop_var = 0;
-            return true;
-        }   
+    float resistance = resistance_between_points(bb_pointer, start_col, start_row, end_col, end_row);
+    if (resistance == FLT_MAX) {
+        printf("No patch found between points.\n");
     }
-    return false;   
+    else {
+        printf("Resistance = %.3f\n", resistance);
+    }
 }
 
 bool save_breadboard(char* filename[25], Breadboard* bb_pointer) {
@@ -194,7 +220,7 @@ int main(void){
             break;
 
          case 5:
-            printf("WIP: Check Resistance.\n");
+            //resistance_between_points()
             break;
 
         case 6:

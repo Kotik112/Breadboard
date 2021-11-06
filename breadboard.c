@@ -77,6 +77,26 @@ bool is_resistance_on_breadboard(Breadboard *bb_pointer, int row, int col) {
     return false;
 }
 
+Resistance* get_resistance_on_breadboard(Breadboard *bb_pointer, int row, int col) {
+    // printf("Checking if there's a resistance ccovering %d, %d.\n", row, col);
+    for (int i = 0; i < bb_pointer->resistance_count; i++) {
+        if (bb_pointer->resistances[i]->cell_row == row) {
+
+            int start_col = bb_pointer->resistances[i]->start_cell_col;
+            int end_col = bb_pointer->resistances[i]->end_cell_col;
+
+            if (start_col == col) {
+                return bb_pointer->resistances[i];
+            }
+            if (end_col == col) {
+                return bb_pointer->resistances[i];
+            }
+
+        }
+    }
+    return NULL;
+}
+
 void print_breadboard(Breadboard *bb_pointer) {
     for (int r = 0; r < bb_pointer->height; r++) {
         for (int c = 0; c < bb_pointer->width; c++) {
@@ -92,18 +112,15 @@ void print_breadboard(Breadboard *bb_pointer) {
     printf("\n");
 }
 
-void breadboard_sort_resistors(Breadboard* bb, int index) {
+void breadboard_move_resistors_up(Breadboard* bb, int index) {
     for (int i = index; i < bb->resistance_count-1; i++) {
-        memcpy(bb->resistances[i], bb->resistances[i+1], sizeof(Resistance));
+        bb->resistances[i] = bb->resistances[i+1];
     }
 }
 
 void breadboard_delete_resistor(Breadboard *bb, int index) {
-    bb->resistances[index]->start_cell_col = -1;
-    bb->resistances[index]->end_cell_col = -1; 
-    bb->resistances[index]->cell_row = -1;
-    bb->resistances[index]->resistance_value = 0.00;
-    breadboard_sort_resistors(bb, index);
+    free(bb->resistances[index]);
+    breadboard_move_resistors_up(bb, index);
     bb->resistance_count--;
 }
 
