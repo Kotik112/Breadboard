@@ -34,7 +34,8 @@ void print_breadboard(Breadboard* bb_pointer);
 void breadboard_delete_resistor(Breadboard* bb, int index);
 /*  */
 void breadboard_move_resistors_up(Breadboard* bb, int index);
-
+/*  */
 int check_resistor_on_col(Breadboard* bb_pointer, int* current_column, int* current_row);
-
+/*  */
+bool save_breadboard(char* filename, Breadboard* bb_pointer);
 #endif

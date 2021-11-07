@@ -121,7 +121,7 @@ bool save_resistances(char* filename, Breadboard* bb_pointer) {
     /* Opens resistances.bin to save the array of resistance pointers on. */
     error_code = fopen_s(&fp_resistances, filename, "wb");
     if (error_code != 0) {
-        printf("Error! Failed to open board.bat in wb mode!");
+        printf("Error! Failed to open board.bat in wb mode!\n");
     }
 
     size_t elements_written = fwrite(bb_pointer->resistances, sizeof(Resistance), bb_pointer->resistance_count, fp_resistances);
