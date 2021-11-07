@@ -29,3 +29,5 @@ int travel_resistor(Resistance* resistor, const int start_col) {
     
 }
 
+
+

@@ -13,7 +13,6 @@
 #include "resistance.h"
 #include "breadboard.h"
 
-#define MAX_DEPTH 10
 
 int get_int_input(const char *text) {
     char input[10]; 
@@ -74,7 +73,7 @@ float resistance_between_points_rec(Breadboard* bb_pointer, const int x1, const 
     }
     
     float min_resistance = FLT_MAX;
-    if (depth >= MAX_DEPTH) {
+    if (depth >= bb_pointer->width - 1) {
         return min_resistance;
     }
 
@@ -103,8 +102,7 @@ void check_circuit(Breadboard* bb_pointer)
     int start_row = get_int_input("Enter the start row: \n");
     int end_col = get_int_input("Enter the end colum: \n");
     int end_row = get_int_input("Enter the end row: \n");
-    int* current_row = &start_row;
-    int* current_column = &start_col;
+
 
     float resistance = resistance_between_points(bb_pointer, start_col, start_row, end_col, end_row);
     if (resistance == FLT_MAX) {
@@ -115,24 +113,9 @@ void check_circuit(Breadboard* bb_pointer)
     }
 }
 
-bool save_breadboard(char* filename[25], Breadboard* bb_pointer) {
-    errno_t error_code;
-    FILE* fp_board;
-    
-    /* Opens board.bin to save the board struct on. */
-    error_code = fopen_s(&fp_board, filename, "wb");
-    if (error_code != 0) {
-        printf("Error! Failed to open bb.bat in wb mode!");
-    }
-    size_t elements_written = fwrite(bb_pointer, sizeof(Breadboard), 1, fp_board);
-    if (elements_written == 0) {
-        return false;
-    }
-    fclose(fp_board);
-    return true;
-}
 
-bool save_resistances(char* filename[25], Breadboard* bb_pointer) {
+
+bool save_resistances(char* filename, Breadboard* bb_pointer) {
     errno_t error_code;
     FILE* fp_resistances;
     /* Opens resistances.bin to save the array of resistance pointers on. */

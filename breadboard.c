@@ -138,6 +138,23 @@ int check_resistor_on_col(Breadboard* bb_pointer, int* current_column, int* curr
     return -1;
 }
 
+bool save_breadboard(char* filename, Breadboard* bb_pointer) {
+    errno_t error_code;
+    FILE* fp_board;
+    
+    /* Opens board.bin to save the board struct on. */
+    error_code = fopen_s(&fp_board, filename, "wb");
+    if (error_code != 0) {
+        printf("Error! Failed to open bb.bat in wb mode!");
+    }
+    size_t elements_written = fwrite(bb_pointer, sizeof(Breadboard), 1, fp_board);
+    if (elements_written == 0) {
+        return false;
+    }
+    fclose(fp_board);
+    return true;
+}
+
 
 
 
