@@ -1,9 +1,9 @@
 /* TODO:
-1!  Solve how to handle deletion.
-2!  Solve check circuit.
-3!  
-4!  Use free() to clean up all mem alloc after yourself.
- */
+1!  Comment relevent shit.
+2!  Write it, cut it, paste it, save it, load it, check it, quick rewrite it
+3!  Control input.
+4!  Städa efter dig.
+*/
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -38,7 +38,7 @@ void new_resistor(Breadboard* bb) {
         //Vad gör jag här?
     }
 
-    breadboard_add_resistance(bb, new_resisor);
+    bb_add_resistance(bb, new_resisor);
 }
 
 void print_resistors(Breadboard* bb) {
@@ -57,12 +57,10 @@ void print_resistors(Breadboard* bb) {
 
 void delete_resistor(Breadboard* bb) {
     print_resistors(bb);
-    int resistor_choice = get_int_input("Enter the resistor you want to delete. (Number): \n");
+    int resistor_choice = get_int_input("Enter the index of the resistor you want to delete: \n");
     /* To adjust the number to its corresponding index. */
     resistor_choice--;
-
-    breadboard_delete_resistor(bb, resistor_choice);
-    
+    bb_delete_resistor(bb, resistor_choice);
 }
 
 
@@ -78,7 +76,7 @@ float resistance_between_points_rec(Breadboard* bb_pointer, const int x1, const 
     }
 
     for (int i = 0; i < bb_pointer->height; i++) {
-        Resistance* res = get_resistance_on_breadboard(bb_pointer, i, x1);
+        Resistance* res = bb_get_resistance_on_breadboard(bb_pointer, i, x1);
         if (res != NULL) {
             float followed_resistance = res->resistance_value;
             int dest_col = travel_resistor(res, x1);
@@ -91,18 +89,26 @@ float resistance_between_points_rec(Breadboard* bb_pointer, const int x1, const 
     return min_resistance;
 }
 
-
+/*  */
 float resistance_between_points(Breadboard* bb_pointer, const int x1, const int y1, const int x2, const int y2) {
     return resistance_between_points_rec(bb_pointer, x1, y1, x2, y2, 0);
 }
 
-void check_circuit(Breadboard* bb_pointer) 
+
+
+/*  */
+void calculate_resistance(Breadboard* bb_pointer) 
 {
     int start_col = get_int_input("Enter the start colum: \n");
     int start_row = get_int_input("Enter the start row: \n");
     int end_col = get_int_input("Enter the end colum: \n");
     int end_row = get_int_input("Enter the end row: \n");
 
+    /* Adjust user input to the correct index on breadboard. Offset of 1 */
+    start_col--; 
+    start_row--; 
+    end_col--; 
+    end_row--;
 
     float resistance = resistance_between_points(bb_pointer, start_col, start_row, end_col, end_row);
     if (resistance == FLT_MAX) {
@@ -114,35 +120,17 @@ void check_circuit(Breadboard* bb_pointer)
 }
 
 
-
-bool save_resistances(char* filename, Breadboard* bb_pointer) {
-    errno_t error_code;
-    FILE* fp_resistances;
-    /* Opens resistances.bin to save the array of resistance pointers on. */
-    error_code = fopen_s(&fp_resistances, filename, "wb");
-    if (error_code != 0) {
-        printf("Error! Failed to open board.bat in wb mode!\n");
-    }
-
-    size_t elements_written = fwrite(bb_pointer->resistances, sizeof(Resistance), bb_pointer->resistance_count, fp_resistances);
-    if (elements_written == 0) {
-        return false;
-    }
-    fclose(fp_resistances);
-
-    return true;
-}
-
+/*  */
 bool save_to_file(Breadboard* bb_pointer) {
     bool status_check;
-    status_check = save_resistances("resistances.bin", bb_pointer);
+    status_check = bb_save_resistances("resistances.bin", bb_pointer);
     if (status_check == false) {
         printf("Save Resistances failed!\n");
         return false;
     }
     printf("Saved resistances file!\n");
 
-    status_check = save_breadboard("bb.bin", bb_pointer);
+    status_check = bb_save_breadboard("bb.bin", bb_pointer);
     if (status_check == false) {
         printf("Save breadboard failed!\n");
         return false;
@@ -150,67 +138,120 @@ bool save_to_file(Breadboard* bb_pointer) {
     return true;
 }
 
+/*  */
 void clean_up(Breadboard* bb_pointer) {
-    free(bb_pointer->resistances);
+    for (int i = 0; i < bb_pointer->resistance_count; i++) {
+        free(bb_pointer->resistances[i]);
+    }
     free(bb_pointer);
 }
 
+/*  */
 void print_main_menu(void) {
     printf("**********   MAIN MENU    **********\n");
     printf("1.  Show breadboard and a list of resistors.\n");
     printf("2.  Insert a resistor.\n");
     printf("3.  Delete a resistor.\n");
-    printf("4.  Check if two points has complete circuit.\n");
-    printf("5.  Check the total resistance between two points.\n");
-    printf("6.  Exit.\n"); //Eventually save to file.
+    printf("4.  Calculate the resistance and connection between two points.\n");
+    printf("5.  Create a new breadboard.\n");
+    printf("6.  Open Breadboard from file.\n");
+    printf("7.  Save Breadboard to file.\n");
+    printf("8.  Exit without saving.\n\n");   
+}
+
+
+Breadboard* create_new_breadboard(void) {
+    int width = get_int_input("Enter the width of the breadboard: \n");
+    int height = get_int_input("Enter the height of the breadboard: \n");
+
+    Breadboard* ptr = bb_create_breadboard(width, height);
+
+    return ptr;
+}
+
+void read_breadboard(Breadboard* bb_pointer) {
+    void* tmp = bb_read_from_file("bb.bin");
+    if (tmp != NULL) {
+        bb_pointer = tmp;
+    }
+    bool check = bb_read_resistances_from_file("resistances.bin", bb_pointer);
+    if (!check) {
+        fprintf(stderr, "bb_read_res failed.\n");
+    }
+}
+
+void save_breadboard(Breadboard* bb_pointer){
+    bool check = bb_save_resistances("resistors.bin", bb_pointer);
+    if (!check) {
+        fprintf(stderr, "Save resistors failed.\n");
+    }
+    check = bb_save_breadboard("bb.bin", bb_pointer);
+    if (!check) {
+        fprintf(stderr, "Save breadboard failed.\n");
+    }
+
+}
+
+void print_intro(void) {
+    printf("Welcome to the breadboard simulator!\n");
+    printf("Start by either creating a new breadboard or opening one from file (if saved).\n");
+    printf("'5' - Creates a new breadboard.\n");
+    printf("'6' - Open Breadboard from file.\n\n");
+    printf("Press any key to continue...");
+    getchar();
 }
 
 int main(void){
-
-    int width = get_int_input("Enter the width of the breadboard: \n");
-    int height = get_int_input("Enter the height of the breadboard: \n");
-    
-    Breadboard* bb = create_breadboard(width, height);
-
-    print_breadboard(bb);
+    /* Default board */
+    Breadboard* bb = bb_create_breadboard(0,0);
+    print_intro();
 
     bool loop_status = true;
     while (loop_status)
     {
         print_main_menu();
-        int user_choice = get_int_input("Enter your choice (1 - 4): \n");
+        int user_choice = get_int_input("Enter your choice (1 - 8): \n");
         switch (user_choice)
         {
         case 1:
-            /* "Show breadboard" menu. */
-            print_breadboard(bb); 
+        /* "Show breadboard" menu. */
+            bb_print_breadboard(bb); 
             print_resistors(bb);
             break;
 
         case 2:
-            /* "Insert a resistor" menu. */
+        /* "Insert a resistor" menu. */
             new_resistor(bb);
             break;
 
         case 3:
-            /* "Delete a resistor" menu. */
+        /* "Delete a resistor" menu. */
             delete_resistor(bb);
             break;
 
         case 4:
-            /* Check if two points has complete circuit. */
-            check_circuit(bb);
+        /* Check if two points has complete circuit. */
+            calculate_resistance(bb);
             break;
 
          case 5:
-            //resistance_between_points()
+        /* Create a new breadboard. */
+            bb = create_new_breadboard();
             break;
 
         case 6:
-            printf("EXIT. (WIP: Save to file).\n");
-            save_to_file(bb);
-            loop_status = false;
+        /* Create a breadboard from file. */
+            read_breadboard(bb);
+            break;
+
+        case 7:
+        /* Save breadboard to file. */
+            save_breadboard(bb);
+            break;
+
+        case 8:
             clean_up(bb);
+            exit(0);
             break;
         
         default:

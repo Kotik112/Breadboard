@@ -5,7 +5,7 @@
 Resistance* create_resistance(int row, int col_start, int col_end, float value) {
     Resistance * res_ptr = malloc(sizeof(Resistance));
     if(res_ptr == NULL) {
-        printf("Failed to allocate memory for the resistor. (create_resistance)\n");
+        fprintf(stderr, "Failed to allocate memory for the resistor.\n");
         return NULL;
     }
     res_ptr->cell_row = row;
