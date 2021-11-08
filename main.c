@@ -31,7 +31,7 @@ void new_resistor(Breadboard* bb) {
     printf("Enter the resistance value of the resistor:\n");
     scanf("%f", &resistance_value);
     //check input
-    getchar(); //removes new line from stdin.
+    getchar();
 
     Resistance* new_resisor = create_resistance(row, col_start, col_end, resistance_value);
     if (new_resisor == NULL) {
