@@ -42,7 +42,7 @@ void new_resistor(Breadboard* bb) {
 }
 
 void print_resistors(Breadboard* bb) {
-    printf("*****   RESISTORS   *****\n");
+    printf("**********   RESISTORS   **********\n");
     for (int i = 0; i < bb->resistance_count; i++) {
         printf("%d: Row: %d, Start column: %d, End column: %d, Resistance value: %.2f.\n",
         i+1, 
