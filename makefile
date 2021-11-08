@@ -1,3 +1,4 @@
 
 all:
-	gcc -g -Wall -Wextra main.c breadboard.c resistance.c -o bb.exe
+	gcc -g -Wall main.c breadboard.c resistance.c -o bb.exe
+	
