@@ -11,7 +11,7 @@ enum bb_resistance_add_result {
     outside_breadboard = 2
 };
 
-typedef struct {
+typedef struct Breadboard{
     int height;
     int width;
     int resistance_count;
@@ -44,7 +44,7 @@ int bb_check_resistor_on_col(Breadboard* bb_pointer, int* current_column, int* c
 bool bb_save_breadboard(char* filename, Breadboard* bb_pointer);
 
 /*  */
-Breadboard* bb_read_from_file(char* filename);
+Breadboard* bb_read_from_file(char* filename, Breadboard *bb_pointer);
 
 /*  */
 bool bb_save_resistances(char* filename, Breadboard* bb_pointer);

@@ -168,28 +168,6 @@ bool bb_save_breadboard(char* filename, Breadboard* bb_pointer) {
     return true;
 }
 
-Breadboard* bb_read_from_file(char* filename) {
-    FILE* fp;
-    Breadboard* ptr = malloc(sizeof(Breadboard));
-    if(ptr == NULL) {
-        fprintf(stderr, "Error! Failed to allocate memory for the breadboard.\n");
-        return NULL;
-    }
-    errno_t error_code = fopen_s(&fp, filename, "rb");
-    if (error_code != 0) {
-        fprintf(stderr, "Error! Failed to open %s in rb mode!\n", filename);
-        return NULL;
-    }
-    
-    ptr->resistances = malloc(sizeof(Resistance*) * ((ptr->height * ptr->width) / 2));
-    /* if (ptr->resistances == NULL) {
-        fprintf(stderr, "Error! Failed to allocate memory for the resistance**.\n");
-        return NULL;
-    } */
-
-    fclose(fp);
-    return ptr;
-}
 
 bool bb_save_resistances(char* filename, Breadboard* bb_pointer) {
     FILE* fp;
@@ -199,9 +177,12 @@ bool bb_save_resistances(char* filename, Breadboard* bb_pointer) {
         fprintf(stderr, "Error! Failed to open %s in wb mode!\n", filename);
         return false;
     }
-    
+    // printf("TEST resistances to write %d\n", bb_pointer->resistance_count);
     for (int i = 0; i < bb_pointer->resistance_count; i++) {
-        if (fwrite(bb_pointer->resistances[i], sizeof(Resistance), 1, fp) != 1) {
+        size_t elements_written = fwrite(bb_pointer->resistances[i], sizeof(Resistance), 1, fp);
+        // printf("written %lld\n", elements_written);
+        if (elements_written != 1) {
+            printf("%d\n", i);
             fprintf(stderr, "Error! Failed saving resistances!\n");
             return false;
         }
@@ -211,25 +192,70 @@ bool bb_save_resistances(char* filename, Breadboard* bb_pointer) {
     return true;
 }
 
-bool bb_read_resistances_from_file(char* filename, Breadboard* bb_pointer) {
-    FILE* fp;
-    Resistance* ptr = malloc(sizeof(Resistance));
-    if(ptr == NULL) {
-        fprintf(stderr, "Error! Failed to allocate memory for the resistors.\n");
-        return false;
+
+Breadboard* bb_read_from_file(char* filename, Breadboard *bb_pointer) {
+
+    Breadboard* new_bb_pointer = malloc(sizeof(Breadboard));
+    
+    // TODO: wipe existing breadboard 
+    
+    if(new_bb_pointer == NULL) {
+        fprintf(stderr, "Error! Failed to allocate memory for the breadboard.\n");
+        return NULL;
     }
+        FILE* fp;
+    errno_t error_code = fopen_s(&fp, filename, "rb");
+    if (error_code != 0) {
+        fprintf(stderr, "Error! Failed to open %s in rb mode!\n", filename);
+        return NULL;
+    }
+    size_t elements_read = fread(new_bb_pointer, sizeof(Breadboard), 1, fp);
+    
+    if (elements_read != 1) {
+        // Error reading breadboard
+    }
+
+    new_bb_pointer->resistances = malloc(sizeof(Resistance*) * ((new_bb_pointer->height * new_bb_pointer->width) / 2));
+    /* if (ptr->resistances == NULL) {
+        fprintf(stderr, "Error! Failed to allocate memory for the resistance**.\n");
+        return NULL;
+    } */
+
+
+    //CHECK!
+
+    fclose(fp);
+    return new_bb_pointer;
+}
+
+bool bb_read_resistances_from_file(char* filename, Breadboard* bb_pointer) {
+    
+    Resistance* ptr = malloc(sizeof(Resistance) * bb_pointer->resistance_count);
+    // if(ptr == NULL) {
+    //     fprintf(stderr, "Error! Failed to allocate memory for the resistors.\n");
+    //     return false;
+    // }
+    FILE* fp;
     errno_t error_code = fopen_s(&fp, filename, "rb");
     if (error_code != 0) {
         fprintf(stderr, "Error! Failed to open %s in 'rb' mode!\n", filename);
         return false;
     }
+    size_t elements_written = fread(ptr, sizeof(Resistance), bb_pointer->resistance_count, fp);
+    printf("Read %lld resistors.\n", elements_written);
+    if (elements_written != bb_pointer->resistance_count) {
+        fprintf(stderr, "Error! Failed to read from %s!\n", filename);
+        return false;
+    }
     for (int i = 0; i < bb_pointer->resistance_count; i++) {
-        size_t elements_written = fread(&bb_pointer->resistances[i], sizeof(Resistance), 1, fp);
-        printf("%lld\n", elements_written);
-        if (elements_written != 1) {
-            fprintf(stderr, "Error! Failed to read from %s!\n", filename);
-        }
+        Resistance* r = ptr + (sizeof(Resistance) * i);
+        printf("Reading resistance %d, row %d, cols %d %d, value %f", i, r->cell_row, r->start_cell_col, r->end_cell_col, r->resistance_value);
+        bb_pointer->resistances[i] = r;
         
+    //         res_ptr->cell_row = row;
+    // res_ptr->start_cell_col = col_start;
+    // res_ptr->end_cell_col = col_end;
+    // res_ptr->resistance_value = value;
     }
     
     fclose(fp);

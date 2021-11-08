@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-typedef struct {
+typedef struct Resistance{
     int start_cell_col;
     int end_cell_col;
     int cell_row;

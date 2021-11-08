@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <float.h>
+#include <errno.h>
 
 #include "resistance.h"
 #include "breadboard.h"
@@ -38,7 +39,7 @@ void new_resistor(Breadboard* bb) {
 
     Resistance* new_resisor = create_resistance(row, col_start, col_end, resistance_value);
     if (new_resisor == NULL) {
-        //Vad gör jag här?
+        fprintf(stderr, "Error! Create_resistance failed!\n");
     }
 
     bb_add_resistance(bb, new_resisor);
@@ -172,15 +173,20 @@ Breadboard* create_new_breadboard(void) {
     return ptr;
 }
 
-void read_breadboard(Breadboard* bb_pointer) {
-    void* tmp = bb_read_from_file("bb.bin");
-    if (tmp != NULL) {
-        bb_pointer = tmp;
+Breadboard* read_breadboard(Breadboard* bb_pointer) {
+    Breadboard* new_bb_pointer = bb_read_from_file("bb.bin", bb_pointer);
+    if (new_bb_pointer == NULL) {
+        printf("bb_read_from_file failed!\n");
+        return NULL;
     }
-    bool check = bb_read_resistances_from_file("resistors.bin", bb_pointer);
+    printf("Breadboard we read is %d x %d with %d resistors.\n", new_bb_pointer->height, new_bb_pointer->width, new_bb_pointer->resistance_count);
+
+    bool check = bb_read_resistances_from_file("resistors.bin", new_bb_pointer);
     if (!check) {
         fprintf(stderr, "bb_read_res failed.\n");
+        return NULL;
     }
+    return new_bb_pointer;
 }
 
 void save_breadboard(Breadboard* bb_pointer){
@@ -198,8 +204,6 @@ void save_breadboard(Breadboard* bb_pointer){
 void print_intro(void) {
     printf("Welcome to the breadboard simulator!\n");
     printf("Start by either creating a new breadboard or opening one from file (if saved).\n");
-    printf("'5' - Creates a new breadboard.\n");
-    printf("'6' - Open Breadboard from file.\n\n");
     printf("Press any key to continue...");
     getchar();
 }
@@ -244,7 +248,7 @@ int main(void){
 
         case 6:
         /* Create a breadboard from file. */
-            read_breadboard(bb);
+            bb = read_breadboard(bb);
             break;
 
         case 7:
