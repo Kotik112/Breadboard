@@ -32,6 +32,9 @@ void new_resistor(Breadboard* bb) {
     scanf("%f", &resistance_value);
     //check input
     getchar(); //removes new line from stdin.
+    row--;
+    col_start--;
+    col_end--;
 
     Resistance* new_resisor = create_resistance(row, col_start, col_end, resistance_value);
     if (new_resisor == NULL) {

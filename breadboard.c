@@ -199,6 +199,7 @@ bool bb_save_resistances(char* filename, Breadboard* bb_pointer) {
         fprintf(stderr, "Error! Failed to open %s in wb mode!\n", filename);
         return false;
     }
+    
     for (int i = 0; i < bb_pointer->resistance_count; i++) {
         if (fwrite(bb_pointer->resistances[i], sizeof(Resistance), 1, fp) != 1) {
             fprintf(stderr, "Error! Failed saving resistances!\n");
@@ -230,9 +231,3 @@ bool bb_read_resistances_from_file(char* filename, Breadboard* bb_pointer) {
     fclose(fp);
     return true;
 }
-
-
-
-
-
-
