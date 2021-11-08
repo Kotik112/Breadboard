@@ -177,7 +177,7 @@ void read_breadboard(Breadboard* bb_pointer) {
     if (tmp != NULL) {
         bb_pointer = tmp;
     }
-    bool check = bb_read_resistances_from_file("resistances.bin", bb_pointer);
+    bool check = bb_read_resistances_from_file("resistors.bin", bb_pointer);
     if (!check) {
         fprintf(stderr, "bb_read_res failed.\n");
     }

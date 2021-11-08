@@ -220,7 +220,7 @@ bool bb_read_resistances_from_file(char* filename, Breadboard* bb_pointer) {
     }
     errno_t error_code = fopen_s(&fp, filename, "rb");
     if (error_code != 0) {
-        fprintf(stderr, "Error! Failed to open %s in rb mode!\n", filename);
+        fprintf(stderr, "Error! Failed to open %s in 'rb' mode!\n", filename);
         return false;
     }
     size_t res_count = (size_t) bb_pointer->resistance_count;
