@@ -8,11 +8,11 @@ typedef struct Resistance{
     int end_cell_col;
     int cell_row;
     float resistance_value;
-} Resistance;
+} resistor_t;
 
 /* Creates a resistance pointer and returns it. */
-Resistance* create_resistance(int row, int col_start, int col_end, float value);
+resistor_t* create_resistance(int row, int col_start, int col_end, float value);
 
-/*  */
-int travel_resistor(Resistance* resistor, const int start_col);    
+/* Spits out the colums number of the opposite end of the resistor */
+int travel_resistor(resistor_t* resistor, const int start_col);    
 #endif

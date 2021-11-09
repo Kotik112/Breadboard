@@ -4,16 +4,16 @@
 #include "resistance.h"
 
 /* Creates and returns a breadboard pointer */
-Breadboard* bb_create_breadboard(const int width, const int height) {
-    Breadboard* ptr = malloc(sizeof(Breadboard));
+breadboard_t* bb_create_breadboard(const int width, const int height) {
+    breadboard_t* ptr = malloc(sizeof(breadboard_t));
     if(ptr == NULL) {
         fprintf(stderr, "Failed to allocate memory for the breadboard. (create_resistance)\n");
         return NULL;
     }
     ptr->width = width;
     ptr->height = height;
-    ptr->resistance_count = 0;
-    ptr->resistances = malloc(sizeof(Resistance*) * ((height * width) / 2));
+    ptr->resistor_count = 0;
+    ptr->resistances = malloc(sizeof(resistor_t*) * ((height * width) / 2));
     if (ptr->resistances == NULL) {
         fprintf(stderr, "Failed to allocate memory for the resistances. (create_resistance)\n");
         return NULL;
@@ -21,7 +21,8 @@ Breadboard* bb_create_breadboard(const int width, const int height) {
     return ptr;
 }
 
-enum bb_resistance_add_result bb_add_resistance(Breadboard* bb_pointer, Resistance* res_pointer) {
+/* Adds a resistor to the breadboard. Returns an enum state (success, overlapping or outside_breadboard). */
+enum bb_resistance_add_result bb_add_resistance(breadboard_t* bb_pointer, resistor_t* res_pointer) {
     // check if its within the board min/max rows/cols
     printf("Adding resistance row: %d, cols %d - %d\n", res_pointer->cell_row, 
                                         res_pointer->start_cell_col, res_pointer->end_cell_col);
@@ -45,16 +46,17 @@ enum bb_resistance_add_result bb_add_resistance(Breadboard* bb_pointer, Resistan
     }
 
     // put resistance pointer into breadboard pointer array
-    bb_pointer->resistances[bb_pointer->resistance_count] = res_pointer;
+    bb_pointer->resistances[bb_pointer->resistor_count] = res_pointer;
     // bump up the number of resistenaces on breadboard by one
-    bb_pointer->resistance_count++;
+    bb_pointer->resistor_count++;
     // return success
     return success;
 }
 
-bool is_resistance_on_breadboard(Breadboard *bb_pointer, int row, int col) {
+/* Checks if there is a resistance on the breadboard at the given row and column. */
+bool is_resistance_on_breadboard(breadboard_t *bb_pointer, int row, int col) {
     // printf("Checking if there's a resistance ccovering %d, %d.\n", row, col);
-    for (int i = 0; i < bb_pointer->resistance_count; i++) {
+    for (int i = 0; i < bb_pointer->resistor_count; i++) {
         // printf("Resistance %d\n", i);
         if (bb_pointer->resistances[i]->cell_row == row) {
 
@@ -75,9 +77,10 @@ bool is_resistance_on_breadboard(Breadboard *bb_pointer, int row, int col) {
     return false;
 }
 
-Resistance* bb_get_resistance_on_breadboard(Breadboard *bb_pointer, int row, int col) {
-    // printf("Checking if there's a resistance ccovering %d, %d.\n", row, col);
-    for (int i = 0; i < bb_pointer->resistance_count; i++) {
+/* Returns the resistance pointer of reachable resistors from given position */
+resistor_t* bb_get_resistance_on_breadboard(breadboard_t *bb_pointer, int row, int col) {
+    // printf("Checking if there's a resistance covering %d, %d.\n", row, col);
+    for (int i = 0; i < bb_pointer->resistor_count; i++) {
         if (bb_pointer->resistances[i]->cell_row == row) {
 
             int start_col = bb_pointer->resistances[i]->start_cell_col;
@@ -94,7 +97,8 @@ Resistance* bb_get_resistance_on_breadboard(Breadboard *bb_pointer, int row, int
     return NULL;
 }
 
-void bb_print_breadboard(Breadboard *bb_pointer) {
+/* Prints the breadboard. Several of the printf's are to adjust formatting. */
+void bb_print_breadboard(breadboard_t *bb_pointer) {
     printf("    ");
     for (int idx = 0; idx < bb_pointer->width; idx++) {
             printf(" %d ", idx+1);
@@ -117,34 +121,22 @@ void bb_print_breadboard(Breadboard *bb_pointer) {
     printf("\n");
 }
 
-void bb_move_resistors_up(Breadboard* bb, int index) {
-    for (int i = index; i < bb->resistance_count-1; i++) {
+/* Adjusts the indices after deleting a resistor. */
+void bb_move_resistors_up(breadboard_t* bb, int index) {
+    for (int i = index; i < bb->resistor_count-1; i++) {
         bb->resistances[i] = bb->resistances[i+1];
     }
 }
 
 /* Deletes a resistor from breadboard and frees its memory */
-void bb_delete_resistor(Breadboard *bb, int index) {
+void bb_delete_resistor(breadboard_t* bb, int index) {
     free(bb->resistances[index]);
     bb_move_resistors_up(bb, index);
-    bb->resistance_count--;
+    bb->resistor_count--;
 }
 
-/* Checks for any resistors on current column */
-int bb_check_resistor_on_col(Breadboard* bb_pointer, int* current_column, int* current_row) {
-    for(int i = 0; i < bb_pointer->resistance_count; i++) {
-        if (bb_pointer->resistances[i]->cell_row == i) {
-            continue;
-        }
-        if (bb_pointer->resistances[i]->start_cell_col == *current_column || bb_pointer->resistances[i]->end_cell_col == *current_column) {
-            *current_column = travel_resistor(bb_pointer->resistances[i], *current_column);
-            *current_row = bb_pointer->resistances[i]->cell_row;
-        }
-    }
-    return -1;
-}
 
-bool bb_save_breadboard(char* filename, Breadboard* bb_pointer) {
+bool bb_save_breadboard(char* filename, breadboard_t* bb_pointer) {
     errno_t error_code;
     FILE* fp;
     
@@ -159,7 +151,7 @@ bool bb_save_breadboard(char* filename, Breadboard* bb_pointer) {
     void *tmp = bb_pointer->resistances;
     bb_pointer->resistances = NULL;
 
-    if (fwrite(bb_pointer, sizeof(Breadboard), 1, fp) != 1) {
+    if (fwrite(bb_pointer, sizeof(breadboard_t), 1, fp) != 1) {
         fprintf(stderr, "Error! Failed to write to file!\n");
         return false;
     }
@@ -168,21 +160,20 @@ bool bb_save_breadboard(char* filename, Breadboard* bb_pointer) {
     return true;
 }
 
-
-bool bb_save_resistances(char* filename, Breadboard* bb_pointer) {
+/* Opens file stream to save the list of resistors on. */
+bool bb_save_resistances(char* filename, breadboard_t* bb_pointer) {
+    
     FILE* fp;
-    /* Opens 'filename' to save the list of resistance pointers on. */
     errno_t error_code = fopen_s(&fp, filename, "wb");
     if (error_code != 0) {
         fprintf(stderr, "Error! Failed to open %s in wb mode!\n", filename);
         return false;
     }
     // printf("TEST resistances to write %d\n", bb_pointer->resistance_count);
-    for (int i = 0; i < bb_pointer->resistance_count; i++) {
-        size_t elements_written = fwrite(bb_pointer->resistances[i], sizeof(Resistance), 1, fp);
+    for (int i = 0; i < bb_pointer->resistor_count; i++) {
+        size_t elements_written = fwrite(bb_pointer->resistances[i], sizeof(resistor_t), 1, fp);
         // printf("written %lld\n", elements_written);
         if (elements_written != 1) {
-            printf("%d\n", i);
             fprintf(stderr, "Error! Failed saving resistances!\n");
             return false;
         }
@@ -193,71 +184,67 @@ bool bb_save_resistances(char* filename, Breadboard* bb_pointer) {
 }
 
 
-Breadboard* bb_read_from_file(char* filename, Breadboard *bb_pointer) {
+breadboard_t* bb_read_breadboard_from_file(char* filename, breadboard_t *bb_pointer) {
 
-    Breadboard* new_bb_pointer = malloc(sizeof(Breadboard));
-    
-    // TODO: wipe existing breadboard 
-    
+    breadboard_t* new_bb_pointer = malloc(sizeof(breadboard_t));    
     if(new_bb_pointer == NULL) {
         fprintf(stderr, "Error! Failed to allocate memory for the breadboard.\n");
         return NULL;
     }
-        FILE* fp;
+    else { /* Frees up the incoming breadboard. */
+        for (int i = 0; i < bb_pointer->resistor_count; i++) {
+            free(bb_pointer->resistances[i]);
+        }
+        free(bb_pointer);
+    }
+    FILE* fp;
     errno_t error_code = fopen_s(&fp, filename, "rb");
     if (error_code != 0) {
         fprintf(stderr, "Error! Failed to open %s in rb mode!\n", filename);
         return NULL;
     }
-    size_t elements_read = fread(new_bb_pointer, sizeof(Breadboard), 1, fp);
+    size_t elements_read = fread(new_bb_pointer, sizeof(breadboard_t), 1, fp);
     
     if (elements_read != 1) {
-        // Error reading breadboard
+        fprintf(stderr, "Error! Failed reading Breadboard from file.\n");
+        return NULL;
     }
 
-    new_bb_pointer->resistances = malloc(sizeof(Resistance*) * ((new_bb_pointer->height * new_bb_pointer->width) / 2));
-    /* if (ptr->resistances == NULL) {
+    new_bb_pointer->resistances = malloc(sizeof(resistor_t*) * ((new_bb_pointer->height * new_bb_pointer->width) / 2));
+    if (new_bb_pointer->resistances == NULL) {
         fprintf(stderr, "Error! Failed to allocate memory for the resistance**.\n");
         return NULL;
-    } */
-
-
-    //CHECK!
+    } 
 
     fclose(fp);
     return new_bb_pointer;
 }
 
-bool bb_read_resistances_from_file(char* filename, Breadboard* bb_pointer) {
+bool bb_read_resistances_from_file(char* filename, breadboard_t* bb_pointer) {
     
-    Resistance* ptr = malloc(sizeof(Resistance) * bb_pointer->resistance_count);
-    // if(ptr == NULL) {
-    //     fprintf(stderr, "Error! Failed to allocate memory for the resistors.\n");
-    //     return false;
-    // }
+    resistor_t* ptr = malloc(sizeof(resistor_t) * bb_pointer->resistor_count);
+    if(ptr == NULL) {
+        fprintf(stderr, "Error! Failed to allocate memory for the resistors.\n");
+        return false;
+    }
     FILE* fp;
     errno_t error_code = fopen_s(&fp, filename, "rb");
     if (error_code != 0) {
         fprintf(stderr, "Error! Failed to open %s in 'rb' mode!\n", filename);
         return false;
     }
-    size_t elements_written = fread(ptr, sizeof(Resistance), bb_pointer->resistance_count, fp);
+    size_t elements_written = fread(ptr, sizeof(resistor_t), bb_pointer->resistor_count, fp);
     printf("Read %lld resistors.\n", elements_written);
-    if (elements_written != bb_pointer->resistance_count) {
+    if (elements_written != bb_pointer->resistor_count) {
         fprintf(stderr, "Error! Failed to read from %s!\n", filename);
         return false;
     }
-    for (int i = 0; i < bb_pointer->resistance_count; i++) {
-        Resistance* r = ptr + (sizeof(Resistance) * i);
-        printf("Reading resistance %d, row %d, cols %d %d, value %f", i, r->cell_row, r->start_cell_col, r->end_cell_col, r->resistance_value);
-        bb_pointer->resistances[i] = r;
-        
-    //         res_ptr->cell_row = row;
-    // res_ptr->start_cell_col = col_start;
-    // res_ptr->end_cell_col = col_end;
-    // res_ptr->resistance_value = value;
+    for (int i = 0; i < bb_pointer->resistor_count; i++) {
+        resistor_t* r = ptr + (sizeof(resistor_t) * i);
+        printf("Reading resistance %d, row %d, cols %d %d, value %f.\n\n", i, r->cell_row, r->start_cell_col, r->end_cell_col, r->resistance_value);
+        bb_pointer->resistances[i] = r; 
     }
-    
     fclose(fp);
+
     return true;
 }

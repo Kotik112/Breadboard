@@ -15,7 +15,7 @@
 #include "breadboard.h"
 
 
-int get_int_input(const char *text) {
+int get_int_input(const char* text) {
     char input[10]; 
    
     printf(text);
@@ -24,20 +24,25 @@ int get_int_input(const char *text) {
 }
 
 
-void new_resistor(Breadboard* bb) {
-    int row = get_int_input("At what row would you like to place the resistor?:\n");
-    int col_start = get_int_input("Enter the column you would like the resistor start at:\n"); 
-    int col_end = get_int_input("Enter the column you would like the resistor end:\n");
+/* Creates a new resistor and adds it to the breadboard. */
+void new_resistor(breadboard_t* bb) {
+    
+    int row = get_int_input("At what row would you like to place the resistor?: ");
+    int col_start = get_int_input("Enter the column you would like the resistor start at: "); 
+    int col_end = get_int_input("Enter the column you would like the resistor end: ");
     float resistance_value; 
-    printf("Enter the resistance value of the resistor:\n");
-    scanf("%f", &resistance_value);
-    //check input
-    getchar(); //removes new line from stdin.
+    printf("Enter the resistance value of the resistor: ");
+    if (scanf("%f", &resistance_value) != 1) {
+        fprintf(stdin, "Error! You did not enter a floating point number!\n");
+    }       
+    getc(stdin); //removes new line from stdin.
+
+    /* Adjusts the offset of 1 from input. */
     row--;
     col_start--;
     col_end--;
 
-    Resistance* new_resisor = create_resistance(row, col_start, col_end, resistance_value);
+    resistor_t* new_resisor = create_resistance(row, col_start, col_end, resistance_value);
     if (new_resisor == NULL) {
         fprintf(stderr, "Error! Create_resistance failed!\n");
     }
@@ -45,21 +50,23 @@ void new_resistor(Breadboard* bb) {
     bb_add_resistance(bb, new_resisor);
 }
 
-void print_resistors(Breadboard* bb) {
+/* Prints all resistors attached to the breadboard. */
+void print_resistors(breadboard_t* bb) {
     printf("**********   RESISTORS   **********\n");
-    for (int i = 0; i < bb->resistance_count; i++) {
+    for (int i = 0; i < bb->resistor_count; i++) {
         printf("%d: Row: %d, Start column: %d, End column: %d, Resistance value: %.2f.\n",
         i+1, 
-        bb->resistances[i]->cell_row, 
-        bb->resistances[i]->start_cell_col,
-        bb->resistances[i]->end_cell_col, 
+        bb->resistances[i]->cell_row+1, 
+        bb->resistances[i]->start_cell_col+1,
+        bb->resistances[i]->end_cell_col+1, 
         bb->resistances[i]->resistance_value
         );
     }
     printf("\n");
 } 
 
-void delete_resistor(Breadboard* bb) {
+/* Deletes a resistor. */
+void delete_resistor(breadboard_t* bb) {
     print_resistors(bb);
     int resistor_choice = get_int_input("Enter the index of the resistor you want to delete: \n");
     /* To adjust the number to its corresponding index. */
@@ -68,8 +75,8 @@ void delete_resistor(Breadboard* bb) {
 }
 
 
-
-float resistance_between_points_rec(Breadboard* bb_pointer, const int x1, const int y1, const int x2, const int y2, int depth) {
+/* The actual logic for the recursive function to check resistances */
+float resistance_between_points_rec(breadboard_t* bb_pointer, const int x1, const int y1, const int x2, const int y2, int depth) {
     if (x1 == x2) {
         return 0;
     }
@@ -80,7 +87,7 @@ float resistance_between_points_rec(Breadboard* bb_pointer, const int x1, const 
     }
 
     for (int i = 0; i < bb_pointer->height; i++) {
-        Resistance* res = bb_get_resistance_on_breadboard(bb_pointer, i, x1);
+        resistor_t* res = bb_get_resistance_on_breadboard(bb_pointer, i, x1);
         if (res != NULL) {
             float followed_resistance = res->resistance_value;
             int dest_col = travel_resistor(res, x1);
@@ -93,15 +100,15 @@ float resistance_between_points_rec(Breadboard* bb_pointer, const int x1, const 
     return min_resistance;
 }
 
-/*  */
-float resistance_between_points(Breadboard* bb_pointer, const int x1, const int y1, const int x2, const int y2) {
+/* Recursive function that counts the total resistance between two points on the breadboard */
+float resistance_between_points(breadboard_t* bb_pointer, const int x1, const int y1, const int x2, const int y2) {
     return resistance_between_points_rec(bb_pointer, x1, y1, x2, y2, 0);
 }
 
 
 
-/*  */
-void calculate_resistance(Breadboard* bb_pointer) 
+/* Calculates the resistance between two points on the breadboard chosen by the user. */
+void calculate_resistance(breadboard_t* bb_pointer) 
 {
     int start_col = get_int_input("Enter the start colum: \n");
     int start_row = get_int_input("Enter the start row: \n");
@@ -116,7 +123,7 @@ void calculate_resistance(Breadboard* bb_pointer)
 
     float resistance = resistance_between_points(bb_pointer, start_col, start_row, end_col, end_row);
     if (resistance == FLT_MAX) {
-        printf("No patch found between points.\n");
+        printf("No path found between points.\n");
     }
     else {
         printf("Resistance = %.3f\n", resistance);
@@ -125,7 +132,7 @@ void calculate_resistance(Breadboard* bb_pointer)
 
 
 /*  */
-bool save_to_file(Breadboard* bb_pointer) {
+bool save_to_file(breadboard_t* bb_pointer) {
     bool status_check;
     status_check = bb_save_resistances("resistances.bin", bb_pointer);
     if (status_check == false) {
@@ -142,9 +149,9 @@ bool save_to_file(Breadboard* bb_pointer) {
     return true;
 }
 
-/*  */
-void clean_up(Breadboard* bb_pointer) {
-    for (int i = 0; i < bb_pointer->resistance_count; i++) {
+/* Frees up allocated */
+void clean_up(breadboard_t* bb_pointer) {
+    for (int i = 0; i < bb_pointer->resistor_count; i++) {
         free(bb_pointer->resistances[i]);
     }
     free(bb_pointer);
@@ -164,22 +171,22 @@ void print_main_menu(void) {
 }
 
 
-Breadboard* create_new_breadboard(void) {
+breadboard_t* create_new_breadboard(void) {
     int width = get_int_input("Enter the width of the breadboard: \n");
     int height = get_int_input("Enter the height of the breadboard: \n");
 
-    Breadboard* ptr = bb_create_breadboard(width, height);
+    breadboard_t* ptr = bb_create_breadboard(width, height);
 
     return ptr;
 }
 
-Breadboard* read_breadboard(Breadboard* bb_pointer) {
-    Breadboard* new_bb_pointer = bb_read_from_file("bb.bin", bb_pointer);
+breadboard_t* read_breadboard(breadboard_t* bb_pointer) {
+    breadboard_t* new_bb_pointer = bb_read_breadboard_from_file("bb.bin", bb_pointer);
     if (new_bb_pointer == NULL) {
         printf("bb_read_from_file failed!\n");
         return NULL;
     }
-    printf("Breadboard we read is %d x %d with %d resistors.\n", new_bb_pointer->height, new_bb_pointer->width, new_bb_pointer->resistance_count);
+    printf("Breadboard we read is %d x %d with %d resistors.\n", new_bb_pointer->height, new_bb_pointer->width, new_bb_pointer->resistor_count);
 
     bool check = bb_read_resistances_from_file("resistors.bin", new_bb_pointer);
     if (!check) {
@@ -189,7 +196,7 @@ Breadboard* read_breadboard(Breadboard* bb_pointer) {
     return new_bb_pointer;
 }
 
-void save_breadboard(Breadboard* bb_pointer){
+void save_breadboard(breadboard_t* bb_pointer){
     bool check = bb_save_resistances("resistors.bin", bb_pointer);
     if (!check) {
         fprintf(stderr, "Save resistors failed.\n");
@@ -206,11 +213,12 @@ void print_intro(void) {
     printf("Start by either creating a new breadboard or opening one from file (if saved).\n");
     printf("Press any key to continue...");
     getchar();
+    printf("\n\n\n");
 }
 
 int main(void){
     /* Default board */
-    Breadboard* bb = bb_create_breadboard(0,0);
+    breadboard_t* bb = bb_create_breadboard(0,0);
     print_intro();
 
     bool loop_status = true;

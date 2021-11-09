@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include "resistance.h"
 
-Resistance* create_resistance(int row, int col_start, int col_end, float value) {
-    Resistance * res_ptr = malloc(sizeof(Resistance));
+resistor_t* create_resistance(int row, int col_start, int col_end, float value) {
+    resistor_t * res_ptr = malloc(sizeof(resistor_t));
     if(res_ptr == NULL) {
         fprintf(stderr, "Failed to allocate memory for the resistor.\n");
         return NULL;
@@ -16,7 +16,7 @@ Resistance* create_resistance(int row, int col_start, int col_end, float value) 
     return res_ptr;
 }
 
-int travel_resistor(Resistance* resistor, const int start_col) {
+int travel_resistor(resistor_t* resistor, const int start_col) {
     if (start_col == resistor->start_cell_col) {
         return resistor->end_cell_col;
     }
