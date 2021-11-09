@@ -1,8 +1,9 @@
-/* TODO:
-1!  Comment relevent shit.
-2!  Write it, cut it, paste it, save it, load it, check it, quick rewrite it
-3!  Control input.
-4!  Städa efter dig.
+/* 
+C/C++ Programmering:
+Uppgift 1 - Skapa en breadboard
+
+Arman Iqbal 
+09-11-21
 */
 
 #include <stdio.h>
@@ -26,7 +27,7 @@ int get_int_input(const char* text) {
 
 /* Creates a new resistor and adds it to the breadboard. */
 void new_resistor(breadboard_t* bb) {
-    
+
     int row = get_int_input("At what row would you like to place the resistor?: ");
     int col_start = get_int_input("Enter the column you would like the resistor start at: "); 
     int col_end = get_int_input("Enter the column you would like the resistor end: ");

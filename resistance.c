@@ -1,3 +1,5 @@
+// Arman Iqbal 09-11-21
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "resistance.h"
