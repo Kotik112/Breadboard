@@ -27,8 +27,7 @@ int travel_resistor(resistor_t* resistor, const int start_col) {
     }
     else {
         return -1;
-    }
-    
+    }    
 }
 
 
