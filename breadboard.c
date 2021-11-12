@@ -244,7 +244,11 @@ bool bb_read_resistances_from_file(char* filename, breadboard_t* bb_pointer) {
     }
     for (int i = 0; i < bb_pointer->resistor_count; i++) {
         resistor_t* r = ptr + (sizeof(resistor_t) * i);
-        printf("Reading resistance %d, row %d, cols %d %d, value %f.\n\n", i, r->cell_row, r->start_cell_col, r->end_cell_col, r->resistance_value);
+        printf("Reading resistance %d, row %d, cols %d %d, value %f.\n\n", i, 
+        r->cell_row, r->start_cell_col, 
+        r->end_cell_col, 
+        r->resistance_value
+        );
         bb_pointer->resistances[i] = r; 
     }
     fclose(fp);
