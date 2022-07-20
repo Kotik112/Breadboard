@@ -29,9 +29,8 @@ The output from this acts as follows.
 - "Resistance = 0.000" if start and end col are the same.
 - "Resistance = x.xxx" if a connection was found. The x represent the eventual output.
 
-        ------------------------------------------------------------------------------------------------------------------
 
-Uppgift 1 - C Program
+# Uppgift 1 - C Program
 
 1 Uppgift
 
